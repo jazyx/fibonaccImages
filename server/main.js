@@ -3,6 +3,7 @@ import { Images
        , Index
        } from '/imports/api/collections';
 import { images } from './images'
+import '../imports/api/methods'
 
 
 

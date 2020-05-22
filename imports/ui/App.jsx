@@ -6,20 +6,14 @@ import styled, { css } from 'styled-components'
 import { Images
        , Index
        } from '/imports/api/collections';
+import { setStart } from '../api/methods'
 
 
 const phi   = (1 + Math.sqrt(5)) / 2
 const thick = 100 / phi
 const thin  = (100 - thick)
 
-// const randomColor = () => {
-//   const r = Math.floor(Math.random() * 256)
-//   const g = Math.floor(Math.random() * 256)
-//   const b = Math.floor(Math.random() * 256)
-//   const color = `rgba(${r}, ${g}, ${b})`
 
-//   return color
-// }
 
 const StyledMain = styled.main`
   position: relative;
@@ -96,12 +90,15 @@ const Frame = (props) => (
 )
 
 
+
 class App extends Component {
   constructor(props) {
     super(props)
 
     this.levels = 14
+
     this.resize = this.resize.bind(this)
+    this.setStart = this.setStart.bind(this)
 
     window.addEventListener("resize", this.resize, false)
     this.state = { ...this.resize(), righthanded: true }
@@ -124,18 +121,39 @@ class App extends Component {
   }
 
 
+  setStart(event) {
+    const index = this.props.index
+    let start = 0
+    let element = event.target
+
+    while(element = element.parentNode){
+      if (element.tagName === "MAIN") {
+        break
+      }
+      start += 1
+    }
+
+    if (!start) {
+       start += (index.start + index.total - 1) % index.total
+    } else {
+      start += index.start % index.total
+    }
+
+    index.start = start
+    setStart.call(index)
+  }
+
+
   getImages() {
     const images = []
 
     const source = this.props.images
     const total  = source.length
-    const start = this.props.index.start || 0
-    let ii = (start + this.levels) % total
+    const start  = this.props.index.start
+    let ii = this.levels
 
-    for ( ii; ii-- > start; ) {
-      const index = ii < 0
-                  ? ii + total
-                  : ii
+    for ( ii ; ii-- ; ) {
+      const index = (start + ii) % total
       images.push(this.props.images[index])
     }
 
@@ -215,7 +233,6 @@ class App extends Component {
       }
     }
 
-    // console.log(this.state.landscapeMode, aspects, positions)
     let frame = ""
 
     images.forEach((imageData, index) => {
@@ -236,18 +253,6 @@ class App extends Component {
                       ? "100%"
                       : thin + "%"
                     : "100%"
-
-       // console.log(
-       //   "src:", src
-       // , "width:", width
-       // , "height:", height
-       // , "aspect:", aspect
-       // , "position:", position
-       // , "top", top
-       // , "left:", left
-       // , "place:", place
-       // )
-
        frame = <Frame
          src={src}
          top={top}
@@ -263,8 +268,6 @@ class App extends Component {
        </Frame>
     })
 
-
-
     return frame
   }
 
@@ -272,14 +275,13 @@ class App extends Component {
   getMain() {
     const frames = this.getFrames()
     const main = <StyledMain
-
+      onMouseUp={this.setStart}
     >
       {frames}
     </StyledMain>
 
     return main
   }
-
 
 
   render() {
@@ -296,6 +298,8 @@ class App extends Component {
 export default withTracker(() => {
   const images = Images.find().fetch()
   const index = Index.findOne() || {}
+
+  console.log(index)
 
   return {
     images

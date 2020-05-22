@@ -1,33 +1,32 @@
 import { Meteor } from 'meteor/meteor'
 import SimpleSchema from 'simpl-schema'
 
+import { Index } from './collections'
 
 
 
+export const setStart = {
+  name: 'vdvoyom.setStart'
 
-/** Called by Activity.goActivity()
- */
-export const setIndex = {
-  name: 'vdvoyom.setIndex'
-
-, call(setIndexData, callback) {
+, call(setStartData, callback) {
     const options = {
       returnStubValue: true
     , throwStubExceptions: true
     }
 
-    Meteor.apply(this.name, [setIndexData], options, callback)
+    Meteor.apply(this.name, [setStartData], options, callback)
   }
 
-, validate(setIndexData) {
+, validate(setStartData) {
     new SimpleSchema({
       _id:   { type: String}
     , start: { type: Number  }
-    }).validate(setIndexData)
+    , total: { type: Number  }
+    }).validate(setStartData)
   }
 
-, run(setIndexData) {
-    const { _id, start } = setIndexData
+, run(setStartData) {
+    const { _id, start } = setStartData
     const select = { _id }
     const set    = { $set: { start } }
     Index.update(select, set)
@@ -47,7 +46,7 @@ export const setIndex = {
 
 // To register a new method with Meteor's DDP system, add it here
 const methods = [
-  setIndex
+  setStart
 ]
 
 methods.forEach(method => {
