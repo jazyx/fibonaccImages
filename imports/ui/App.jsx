@@ -48,6 +48,7 @@ const StyledFrame = styled.div`
 
   width: ${props => props.width || "100%"};
   height: ${props => props.height || "50%"};
+
   background-image: url("${props => props.src}");
   background-position: ${props => props.place};
   background-size: contain;
@@ -96,12 +97,17 @@ class App extends Component {
     super(props)
 
     this.levels = 14
+    this.imagesLoaded = false
 
     this.resize = this.resize.bind(this)
     this.setStart = this.setStart.bind(this)
 
     window.addEventListener("resize", this.resize, false)
-    this.state = { ...this.resize(), righthanded: true }
+    this.state = {
+      ...this.resize()
+    , righthanded: true
+    , imagesLoaded: false
+    }
   }
 
 
@@ -118,6 +124,12 @@ class App extends Component {
     } else {
       return { landscapeMode }
     }
+  }
+
+
+  preloadImages() {
+    const imagesLoaded = true
+    setTimeout(() => this.setState({ imagesLoaded }), 0)
   }
 
 
@@ -285,8 +297,12 @@ class App extends Component {
 
 
   render() {
-    if (!this.props.images.length) {
+    if (this.props.images.length !== this.props.index.total) {
       return <p>Loading...</p>
+
+    } else if (!this.state.imagesLoaded) {
+      this.preloadImages()
+      return <p>Loading images...</p>
     }
 
     const main = this.getMain()
@@ -298,8 +314,6 @@ class App extends Component {
 export default withTracker(() => {
   const images = Images.find().fetch()
   const index = Index.findOne() || {}
-
-  console.log(index)
 
   return {
     images
