@@ -1,0 +1,4 @@
+meteor remove autopublish insecure
+
+npm install simpl-schema
+npm install --save styled-components
