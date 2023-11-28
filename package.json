@@ -12,7 +12,7 @@
     "meteor-node-stubs": "^1.0.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "simpl-schema": "^1.7.3",
+    "simpl-schema": "^1.13.0",
     "styled-components": "^5.1.0"
   },
   "meteor": {
